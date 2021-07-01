@@ -5,13 +5,10 @@ import com.mongodb.client.result.UpdateResult;
 import com.mzyd.demomongodbswagger.model.User;
 import com.mzyd.demomongodbswagger.service.MongoDBService;
 import io.swagger.annotations.Api;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,17 +25,18 @@ import java.util.regex.Pattern;
 @RestController
 @Api(tags = "mongodb增删改查")
 public class MongoDBController {
-    
+
     @Autowired
     private MongoDBService mongoDBService;
 
 
     /**
      * 增加用户
+     *
      * @param user
      */
     @PostMapping("insertUser")
-    public void insert(@RequestBody User user){
+    public void insert(@RequestBody User user) {
         User insert = mongoDBService.insert(user);
 
         System.out.println(insert);
@@ -47,12 +45,13 @@ public class MongoDBController {
 
     /**
      * 根据id删除
+     *
      * @param id
      */
     @DeleteMapping("deleteUserById/{id}")
-    public void delete(@PathVariable String id){
+    public void delete(@PathVariable String id) {
 
-        Query query=new Query(Criteria.where("id").is(id));
+        Query query = new Query(Criteria.where("id").is(id));
         DeleteResult remove = mongoDBService.remove(query, User.class);
 
         System.out.println(remove);
@@ -61,20 +60,21 @@ public class MongoDBController {
 
     /**
      * 根据id查询并更新用户
+     *
      * @param id
      * @param user
      */
     @PostMapping("updateUser/{id}")
-    public void update(@PathVariable String id,@RequestBody User user){
+    public void update(@PathVariable String id, @RequestBody User user) {
 
-        Query query=new Query(Criteria.where("id").is(id));
+        Query query = new Query(Criteria.where("id").is(id));
 
-        Update updateUser=new Update();
-        //updateUser.set("id",user.getId());
-        updateUser.set("name",user.getName());
-        updateUser.set("age",user.getAge());
-        updateUser.set("email",user.getEmail());
-        updateUser.set("createDate",user.getCreateDate());
+        Update updateUser = new Update();
+
+        updateUser.set("name", user.getName());
+        updateUser.set("age", user.getAge());
+        updateUser.set("email", user.getEmail());
+        updateUser.set("createDate", user.getCreateDate());
 
 
         UpdateResult updateResult = mongoDBService.updateFirst(query, updateUser, User.class);
@@ -84,10 +84,11 @@ public class MongoDBController {
 
     /**
      * 查找所有
+     *
      * @return
      */
-    @GetMapping("findAll")
-    public List findAll(){
+    @GetMapping("/findAll")
+    public List findAll() {
         List<User> all = mongoDBService.findAll(User.class);
 
 
@@ -96,24 +97,26 @@ public class MongoDBController {
 
     /**
      * 根据id查询
+     *
      * @param id
      */
     @GetMapping("find/{id}")
-    public void find(@PathVariable String id){
+    public void find(@PathVariable String id) {
         User byId = mongoDBService.findById(id, User.class);
         System.out.println(byId);
     }
 
     /**
      * 根据姓名和年龄条件查找
+     *
      * @param name
      * @param age
      * @return
      */
     @GetMapping("find/{name}/{age}")
-    public List findUserList(@PathVariable String name,@PathVariable Integer age){
+    public List findUserList(@PathVariable String name, @PathVariable Integer age) {
 
-        Query query=new Query();
+        Query query = new Query();
         query.addCriteria(Criteria.where("name").is(name).and("age").is(age));
 
         List<User> users = mongoDBService.find(query, User.class);
@@ -123,20 +126,22 @@ public class MongoDBController {
 
     /**
      * 根据名字删除
+     *
      * @param name
      */
     @DeleteMapping("delete/{name}")
-    public void deleteByName(@PathVariable String name){
+    public void deleteByName(@PathVariable String name) {
 
-        Query query=new Query();
+        Query query = new Query();
         query.addCriteria(Criteria.where("name").is(name));
 
-        mongoDBService.remove(query,User.class);
+        mongoDBService.remove(query, User.class);
     }
 
 
     /**
      * 根据条件模糊查询，分页显示
+     *
      * @param condition
      * @param page
      * @param limit
@@ -144,8 +149,8 @@ public class MongoDBController {
      */
     @GetMapping("findRegex/{condition}/{page}/{limit}")
     public Map<String, Object> findRegex(@PathVariable String condition,
-                          @PathVariable int page,
-                          @PathVariable int limit){
+                                         @PathVariable int page,
+                                         @PathVariable int limit) {
         String name = condition;
         int pageNo = page;
         int pageSize = limit;
@@ -159,13 +164,13 @@ public class MongoDBController {
 
         Map<String, Object> pageMap = new HashMap<>();
         pageMap.put("list", userList);
-        pageMap.put("totalCount",totalCount);
+        pageMap.put("totalCount", totalCount);
         System.out.println(pageMap);
 
         return pageMap;
 
 
     }
-    
+
 
 }
